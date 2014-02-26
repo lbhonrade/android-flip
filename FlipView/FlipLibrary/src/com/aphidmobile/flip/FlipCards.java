@@ -35,6 +35,7 @@ public class FlipCards {
   private static final int MAX_TIP_ANGLE = 60;
   private static final int MAX_TOUCH_MOVE_ANGLE = 15;
   private static final float MIN_MOVEMENT = 4f;
+  private static final float[] TOUCH_AREA_BOUNDS = {0.1f, 0.9f};
 
   private static final int STATE_INIT = 0;
   private static final int STATE_TOUCH = 1;
@@ -60,6 +61,8 @@ public class FlipCards {
   private int maxIndex = 0;
 
   private int lastPageIndex;
+  
+  private boolean isFromEdge = false;
 
   public FlipCards(FlipViewController controller, boolean orientationVertical) {
     this.controller = controller;
@@ -280,8 +283,16 @@ public class FlipCards {
         // remember page we started on...
         lastPageIndex = getPageIndexFromAngle(accumulatedAngle);
         lastPosition = orientationVertical ? event.getY() : event.getX();
+        float coord = orientationVertical ? event.getYPrecision()*event.getY() : event.getXPrecision()*event.getX();
+		float maxTouch = orientationVertical ? controller.getContentHeight() : controller.getContentWidth();
+		float minCoord = maxTouch*TOUCH_AREA_BOUNDS[0];
+		float maxCoord = maxTouch*TOUCH_AREA_BOUNDS[1];
+		isFromEdge = coord < minCoord || coord > maxCoord;
         return isOnTouchEvent;
       case MotionEvent.ACTION_MOVE:
+    	if(!isFromEdge) {
+    		return false;
+    	}
         float
             delta =
             orientationVertical ? (lastPosition - event.getY()) : (lastPosition - event.getX());
@@ -361,6 +372,7 @@ public class FlipCards {
         return isOnTouchEvent;
       case MotionEvent.ACTION_UP:
       case MotionEvent.ACTION_CANCEL:
+    	isFromEdge = false;
         if (state == STATE_TOUCH) {
           if (accumulatedAngle < 0) {
             forward = true;
