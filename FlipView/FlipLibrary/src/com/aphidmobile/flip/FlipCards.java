@@ -461,7 +461,7 @@ public class FlipCards {
 	}
 	
 	public void previousPage() {
-		forward = true;
+		forward = false;
 		setState(STATE_AUTO_ROTATE);
 		controller.showFlipAnimation();
 		controller.getSurfaceView().requestRender();
