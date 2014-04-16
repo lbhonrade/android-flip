@@ -711,7 +711,7 @@ public class FlipViewController extends AdapterView<Adapter> {
 			public void run() {
 				setSelection(selectedPosition);
 			}
-		}, 500);
+		}, selectedPosition == 2 ? 700 : 1000);
 	}
 
 	private class MyDataSetObserver extends DataSetObserver {
